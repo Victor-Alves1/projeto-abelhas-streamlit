@@ -2,13 +2,12 @@ import pandas as pd
 #from IPython.display import display
 #import matplotlib.pyplot as plt
 import plotly.express as px
-import plotly.graph_objects as go
 import streamlit as st
 
 #xl = pd.ExcelFile("c:/Users/Victor/Desktop/projeto salvo/abelhas/pam_pe_permanente.xlsx")
 #xl2 = pd.ExcelFile("c:/Users/Victor/Desktop/projeto salvo/abelhas/pam_pe_temporario.xlsx")
-xl = pd.ExcelFile("pam_pe_permanente.xlsx")
-xl2 = pd.ExcelFile("pam_pe_temporario.xlsx")
+xl = pd.ExcelFile("./pam_pe_permanente.xlsx")
+xl2 = pd.ExcelFile("./pam_pe_temporario.xlsx")
 df_list = []
 for i in xl.sheet_names:
   df = pd.read_excel(xl, sheet_name = i, skiprows=[0,1,2,3])
