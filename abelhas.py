@@ -1,7 +1,8 @@
 import pandas as pd
-from IPython.display import display
+#from IPython.display import display
 #import matplotlib.pyplot as plt
 import plotly.express as px
+import plotly.graph_objects as go
 import streamlit as st
 
 #xl = pd.ExcelFile("c:/Users/Victor/Desktop/projeto salvo/abelhas/pam_pe_permanente.xlsx")
@@ -50,7 +51,7 @@ for i in xl2.sheet_names:
   df.rename(columns={'Unnamed: 0':'cidade'}, inplace=True)
   df = df[df["cidade"].str.startswith('     ')]
   df.insert(1, "producao", i)
-  df.insert(2, "temporaria/permanente", "Temporaria")
+  df.insert(2, "temporaria/permanente", "permanente")
   #df['Área destinada à colheita (Hectares)'] = pd.to_numeric(df['Área destinada à colheita (Hectares)'], errors='coerce')
   #df['Área colhida (Hectares)'] = pd.to_numeric(df['Área colhida (Hectares)'], errors='coerce')
   #df['Quantidade produzida (Toneladas)'] = pd.to_numeric(df['Quantidade produzida (Toneladas)'], errors='coerce')
@@ -87,7 +88,8 @@ series = series[series['Quantidade produzida (Toneladas)'] > 0]#.head(10)
 #series.plot.bar(x = 'cidade' , y = 'Quantidade produzida (Toneladas)', index = 'producao', stacked=True)
 wide_df = series
 
-fig = px.bar(wide_df, x='cidade', y='Quantidade produzida (Toneladas)', color='producao', title="Wide-Form Input")
+fig = px.bar(wide_df, x='cidade', y='Quantidade produzida (Toneladas)', color='producao', title="Produção agricola de Pernambuco" )
+
 ##fig.show()
 
 st.title('Produção agricola em Pernambuco')
@@ -98,3 +100,4 @@ st.title('Produção agricola em Pernambuco')
 
 # Plot
 st.plotly_chart(fig)
+st.dataframe(dataset)
