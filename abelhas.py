@@ -6,8 +6,8 @@ import streamlit as st
 
 #xl = pd.ExcelFile("c:/Users/Victor/Desktop/projeto salvo/abelhas/pam_pe_permanente.xlsx")
 #xl2 = pd.ExcelFile("c:/Users/Victor/Desktop/projeto salvo/abelhas/pam_pe_temporario.xlsx")
-xl = pd.ExcelFile("https://github.com/Victor-Alves1/projeto-abelhas-streamlit/blob/master/pam_pe_permanente.xlsx")
-xl2 = pd.ExcelFile("https://github.com/Victor-Alves1/projeto-abelhas-streamlit/blob/master/pam_pe_temporario.xlsx")
+xl = pd.ExcelFile("https://github.com/Victor-Alves1/projeto-abelhas-streamlit/raw/master/pam_pe_permanente.xlsx")
+xl2 = pd.ExcelFile("https://github.com/Victor-Alves1/projeto-abelhas-streamlit/raw/master/pam_pe_temporario.xlsx")
 df_list = []
 for i in xl.sheet_names:
   df = pd.read_excel(xl, sheet_name = i, skiprows=[0,1,2,3])
