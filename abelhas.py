@@ -1,13 +1,15 @@
 import pandas as pd
-#from IPython.display import display
-#import matplotlib.pyplot as plt
 import plotly.express as px
 import streamlit as st
+import folium
+
+
 
 #xl = pd.ExcelFile("c:/Users/Victor/Desktop/projeto salvo/abelhas/pam_pe_permanente.xlsx")
 #xl2 = pd.ExcelFile("c:/Users/Victor/Desktop/projeto salvo/abelhas/pam_pe_temporario.xlsx")
 xl = pd.ExcelFile("https://github.com/Victor-Alves1/projeto-abelhas-streamlit/raw/master/pam_pe_permanente.xlsx")
 xl2 = pd.ExcelFile("https://github.com/Victor-Alves1/projeto-abelhas-streamlit/raw/master/pam_pe_temporario.xlsx")
+
 df_list = []
 for i in xl.sheet_names:
   df = pd.read_excel(xl, sheet_name = i, skiprows=[0,1,2,3])
@@ -96,6 +98,35 @@ st.title('Produção agricola em Pernambuco')
 # Sidebar
 #st.sidebar.header('User Input')
 #symbol = st.sidebar.text_input('Escolha um ativo:', 'AAPL')
+
+#Criando mapas
+
+m = folium.Map(location=(45.5236, -122.6750))
+state_geo = pd.get(
+    "https://raw.githubusercontent.com/tbrugz/geodata-br/master/geojson/geojs-100-mun.json"
+).json()
+state_data = pd.read_csv(
+    "https://raw.githubusercontent.com/python-visualization/folium-example-data/main/us_unemployment_oct_2012.csv"
+)
+
+m = folium.Map(location=[-8, -34], zoom_start=3)
+
+folium.Choropleth(
+    geo_data=state_geo,
+    name="choropleth",
+    data=state_data,
+    columns=["cidade", "Quantidade produzida (Toneladas)"],
+    key_on="feature.name",
+    fill_color="YlGn",
+    fill_opacity=0.7,
+    line_opacity=0.2,
+    legend_name="Produção agricola em Pernambuco",
+).add_to(m)
+
+folium.LayerControl().add_to(m)
+
+m
+
 
 # Plot
 st.plotly_chart(fig)
