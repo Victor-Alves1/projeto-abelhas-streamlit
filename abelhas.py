@@ -1,12 +1,12 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
+import requests
 import folium
+from streamlit_folium import st_folium
+import json
 
 
-
-#xl = pd.ExcelFile("c:/Users/Victor/Desktop/projeto salvo/abelhas/pam_pe_permanente.xlsx")
-#xl2 = pd.ExcelFile("c:/Users/Victor/Desktop/projeto salvo/abelhas/pam_pe_temporario.xlsx")
 xl = pd.ExcelFile("https://github.com/Victor-Alves1/projeto-abelhas-streamlit/raw/master/pam_pe_permanente.xlsx")
 xl2 = pd.ExcelFile("https://github.com/Victor-Alves1/projeto-abelhas-streamlit/raw/master/pam_pe_temporario.xlsx")
 
@@ -45,6 +45,7 @@ for i in xl.sheet_names:
   df['Rendimento médio da produção (Quilogramas por Hectare)'] = df['Rendimento médio da produção (Quilogramas por Hectare)'].astype(float)
   df['Valor da produção (Mil Reais)'] = df['Valor da produção (Mil Reais)'].astype(float)
   df_list.append(df)
+
 for i in xl2.sheet_names:
   df = pd.read_excel(xl2, sheet_name = i, skiprows=[0,1,2,3])
   if len(df.columns) != 6:
@@ -79,19 +80,20 @@ for i in xl2.sheet_names:
   df['Rendimento médio da produção (Quilogramas por Hectare)'] = df['Rendimento médio da produção (Quilogramas por Hectare)'].astype(float)
   df['Valor da produção (Mil Reais)'] = df['Valor da produção (Mil Reais)'].astype(float)
   df_list.append(df)
-#display(df_list[1])
+
 dataset = pd.concat(df_list)
+
 series = dataset[['cidade','producao','Quantidade produzida (Toneladas)']]
 series = series[series['Quantidade produzida (Toneladas)'] > 0]#.head(10)
-##display(series)
-#series.plot.pie(figsize=(6, 6));
-#df.groupby(['cidade']).sum()
-#series.plot.bar(x = 'cidade' , y = 'Quantidade produzida (Toneladas)', index = 'producao', stacked=True)
 wide_df = series
 
-fig = px.bar(wide_df, x='cidade', y='Quantidade produzida (Toneladas)', color='producao', title="Produção agricola de Pernambuco" )
+excluding_sugar_cane = dataset[dataset["temporaria/permanente"] == 'Temporaria']#.head(10)
+prod_per_city = excluding_sugar_cane[['cidade','Quantidade produzida (Toneladas)']]
+sum_prod_per_city = prod_per_city.groupby('cidade').sum()
+#series.plot.bar(x = 'cidade' , y = 'Quantidade produzida (Toneladas)', index = 'producao', stacked=True)
+st.dataframe(sum_prod_per_city)
 
-##fig.show()
+fig = px.bar(wide_df, x='cidade', y='Quantidade produzida (Toneladas)', color='producao', title="Produção agricola de Pernambuco" )
 
 st.title('Produção agricola em Pernambuco')
 
@@ -100,34 +102,29 @@ st.title('Produção agricola em Pernambuco')
 #symbol = st.sidebar.text_input('Escolha um ativo:', 'AAPL')
 
 #Criando mapas
-
-m = folium.Map(location=(45.5236, -122.6750))
-state_geo = pd.get(
-    "https://raw.githubusercontent.com/tbrugz/geodata-br/master/geojson/geojs-100-mun.json"
-).json()
-state_data = pd.read_csv(
-    "https://raw.githubusercontent.com/python-visualization/folium-example-data/main/us_unemployment_oct_2012.csv"
-)
-
-m = folium.Map(location=[-8, -34], zoom_start=3)
+brazil_data = open('brazil_geo_json.json', 'r')
+#brazil_data = json.load(f)
+m = folium.Map(location=(-8.36, -38.02), zoom_start=5, control_scale=True)
+state_geo = json.load(brazil_data)
 
 folium.Choropleth(
     geo_data=state_geo,
     name="choropleth",
-    data=state_data,
+    data=sum_prod_per_city,
     columns=["cidade", "Quantidade produzida (Toneladas)"],
-    key_on="feature.name",
-    fill_color="YlGn",
-    fill_opacity=0.7,
-    line_opacity=0.2,
+    key_on="feature.properties.name",
+    #fill_color="YlGn",
+    fill_opacity=0.4,
+    #line_opacity=0.2,
     legend_name="Produção agricola em Pernambuco",
+    highlight=True
 ).add_to(m)
 
-folium.LayerControl().add_to(m)
+#folium.LayerControl().add_to(m)
 
-m
-
+st_folium(m, width=725, height =  600)
 
 # Plot
 st.plotly_chart(fig)
+
 st.dataframe(dataset)
