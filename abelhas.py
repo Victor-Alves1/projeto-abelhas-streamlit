@@ -1,7 +1,6 @@
 import pandas as pd
 import plotly.express as px
 import streamlit as st
-import requests
 import folium
 from streamlit_folium import st_folium
 import json

@@ -3,4 +3,4 @@ plotly
 streamlit
 openpyxl
 folium
-streamlit_folium
+json
