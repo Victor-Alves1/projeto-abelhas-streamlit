@@ -95,7 +95,7 @@ sum_prod_per_city = sum_prod_per_city.reset_index()
 
 fig = px.bar(wide_df, x='cidade', y='Quantidade produzida (Toneladas)', color='producao', title="Produção agricola de Pernambuco" )
 
-st.title('Produção agricola em Pernambuco')
+st.title('Produção agrícola em Pernambuco')
 
 # Sidebar
 #st.sidebar.header('User Input')
