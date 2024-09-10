@@ -15,7 +15,7 @@ for i in xl.sheet_names:
   if len(df.columns) != 6:
     continue
   df.rename(columns={'Unnamed: 0':'cidade'}, inplace=True)
-  df = df[df["cidade"].str.startswith('     ')]
+  df = df[df["cidade"].str.startswith('      ')]
   df.insert(1, "producao", i)
   df.insert(2, "temporaria/permanente", "Temporaria")
   #df['Área destinada à colheita (Hectares)'] = pd.to_numeric(df['Área destinada à colheita (Hectares)'], errors='coerce')
@@ -50,7 +50,7 @@ for i in xl2.sheet_names:
   if len(df.columns) != 6:
     continue
   df.rename(columns={'Unnamed: 0':'cidade'}, inplace=True)
-  df = df[df["cidade"].str.startswith('     ')]
+  df = df[df["cidade"].str.startswith('      ')]
   df.insert(1, "producao", i)
   df.insert(2, "temporaria/permanente", "permanente")
   #df['Área destinada à colheita (Hectares)'] = pd.to_numeric(df['Área destinada à colheita (Hectares)'], errors='coerce')
@@ -90,6 +90,8 @@ excluding_sugar_cane = dataset[dataset["temporaria/permanente"] == 'Temporaria']
 prod_per_city = excluding_sugar_cane[['cidade','Quantidade produzida (Toneladas)']]
 sum_prod_per_city = prod_per_city.groupby('cidade').sum()
 sum_prod_per_city = sum_prod_per_city.reset_index()
+sum_prod_per_city['cidade'] = sum_prod_per_city['cidade'].str.strip()
+
 #series.plot.bar(x = 'cidade' , y = 'Quantidade produzida (Toneladas)', index = 'producao', stacked=True)
 
 
@@ -110,7 +112,7 @@ state_geo = json.load(brazil_data)
 folium.Choropleth(
     geo_data=state_geo,
     #name="choropleth",
-    data=prod_per_city,
+    data=sum_prod_per_city,
     columns=['cidade', 'Quantidade produzida (Toneladas)'],
     key_on="feature.properties.name",
     nan_fill_color = "white"

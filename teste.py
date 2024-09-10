@@ -16,7 +16,7 @@ for i in xl.sheet_names:
   if len(df.columns) != 6:
     continue
   df.rename(columns={'Unnamed: 0':'cidade'}, inplace=True)
-  df = df[df["cidade"].str.startswith('     ')]
+  df = df[df["cidade"].str.startswith('      ')]
   df.insert(1, "producao", i)
   df.insert(2, "temporaria/permanente", "Temporaria")
   #df['Área destinada à colheita (Hectares)'] = pd.to_numeric(df['Área destinada à colheita (Hectares)'], errors='coerce')
@@ -51,7 +51,7 @@ for i in xl2.sheet_names:
   if len(df.columns) != 6:
     continue
   df.rename(columns={'Unnamed: 0':'cidade'}, inplace=True)
-  df = df[df["cidade"].str.startswith('     ')]
+  df = df[df["cidade"].str.startswith('      ')]
   df.insert(1, "producao", i)
   df.insert(2, "temporaria/permanente", "permanente")
   #df['Área destinada à colheita (Hectares)'] = pd.to_numeric(df['Área destinada à colheita (Hectares)'], errors='coerce')
@@ -87,8 +87,14 @@ series = dataset[['cidade','producao','Quantidade produzida (Toneladas)']]
 series = series[series['Quantidade produzida (Toneladas)'] > 0]#.head(10)
 wide_df = series
 
+
 excluding_sugar_cane = dataset[dataset["temporaria/permanente"] == 'Temporaria']#.head(10)
 prod_per_city = excluding_sugar_cane[['cidade','Quantidade produzida (Toneladas)']]
 sum_prod_per_city = prod_per_city.groupby('cidade').sum()
+print(sum_prod_per_city)
 sum_prod_per_city = sum_prod_per_city.reset_index()
+print(sum_prod_per_city)
+#sum_prod_per_city['cidade'] = sum_prod_per_city['cidade'].astype("string")
+sum_prod_per_city['cidade'] = sum_prod_per_city['cidade'].str.strip()
+
 print(sum_prod_per_city)
