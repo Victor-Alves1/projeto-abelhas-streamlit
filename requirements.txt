@@ -4,4 +4,4 @@ streamlit
 openpyxl
 folium
 json
-streamlit_folium
+streamlit-folium

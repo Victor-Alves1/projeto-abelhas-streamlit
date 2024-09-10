@@ -9,7 +9,7 @@ plotly = "*"
 streamlit = "*"
 openpyxl = "*"
 folium = "*"
-streamlit_folium = "*"
+streamlit-folium = "*"
 
 [dev-packages]
 
