@@ -2,113 +2,72 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 import folium
-from streamlit_folium import st_folium
+import streamlit_folium 
 import json
-
-
-xl = pd.ExcelFile("https://github.com/Victor-Alves1/projeto-abelhas-streamlit/raw/master/pam_pe_permanente.xlsx")
-xl2 = pd.ExcelFile("https://github.com/Victor-Alves1/projeto-abelhas-streamlit/raw/master/pam_pe_temporario.xlsx")
+import plantas_permanentes  
+import plantas_temporarias  
 
 df_list = []
-for i in xl.sheet_names:
-  df = pd.read_excel(xl, sheet_name = i, skiprows=[0,1,2,3])
-  if len(df.columns) != 6:
-    continue
-  df.rename(columns={'Unnamed: 0':'cidade'}, inplace=True)
-  df = df[df["cidade"].str.startswith('      ')]
-  df.insert(1, "producao", i)
-  df.insert(2, "temporaria/permanente", "Temporaria")
-  #df['Área destinada à colheita (Hectares)'] = pd.to_numeric(df['Área destinada à colheita (Hectares)'], errors='coerce')
-  #df['Área colhida (Hectares)'] = pd.to_numeric(df['Área colhida (Hectares)'], errors='coerce')
-  #df['Quantidade produzida (Toneladas)'] = pd.to_numeric(df['Quantidade produzida (Toneladas)'], errors='coerce')
-  #df['Rendimento médio da produção (Quilogramas por Hectare)'] = pd.to_numeric(df['Rendimento médio da produção (Quilogramas por Hectare)'], errors='coerce')
-  #df['Valor da produção (Mil Reais)'] = pd.to_numeric(df['Valor da produção (Mil Reais)'], errors='coerce')
-  df.loc[df["Área destinada à colheita (Hectares)"] ==  '-', "Área destinada à colheita (Hectares)"] = 0
-  df.loc[df["Área destinada à colheita (Hectares)"] ==  '..', "Área destinada à colheita (Hectares)"] = 0
-  df.loc[df["Área destinada à colheita (Hectares)"] ==  '...', "Área destinada à colheita (Hectares)"] = 0
-  df.loc[df["Área colhida (Hectares)"] ==  '-', "Área colhida (Hectares)"] = 0
-  df.loc[df["Área colhida (Hectares)"] ==  '..', "Área colhida (Hectares)"] = 0
-  df.loc[df["Área colhida (Hectares)"] ==  '...', "Área colhida (Hectares)"] = 0
-  df.loc[df["Quantidade produzida (Toneladas)"] ==  '-', "Quantidade produzida (Toneladas)"] = 0
-  df.loc[df["Quantidade produzida (Toneladas)"] ==  '..', "Quantidade produzida (Toneladas)"] = 0
-  df.loc[df["Quantidade produzida (Toneladas)"] ==  '...', "Quantidade produzida (Toneladas)"] = 0
-  df.loc[df["Rendimento médio da produção (Quilogramas por Hectare)"] ==  '-', "Rendimento médio da produção (Quilogramas por Hectare)"] = 0
-  df.loc[df["Rendimento médio da produção (Quilogramas por Hectare)"] ==  '..', "Rendimento médio da produção (Quilogramas por Hectare)"] = 0
-  df.loc[df["Rendimento médio da produção (Quilogramas por Hectare)"] ==  '...', "Rendimento médio da produção (Quilogramas por Hectare)"] = 0
-  df.loc[df["Valor da produção (Mil Reais)"] ==  '-', "Valor da produção (Mil Reais)"] = 0
-  df.loc[df["Valor da produção (Mil Reais)"] ==  '..', "Valor da produção (Mil Reais)"] = 0
-  df.loc[df["Valor da produção (Mil Reais)"] ==  '...', "Valor da produção (Mil Reais)"] = 0
-  df['Área destinada à colheita (Hectares)'] = df['Área destinada à colheita (Hectares)'].astype(float)
-  df['Área colhida (Hectares)'] = df['Área colhida (Hectares)'].astype(float)
-  df['Quantidade produzida (Toneladas)'] = df['Quantidade produzida (Toneladas)'].astype(float)
-  df['Rendimento médio da produção (Quilogramas por Hectare)'] = df['Rendimento médio da produção (Quilogramas por Hectare)'].astype(float)
-  df['Valor da produção (Mil Reais)'] = df['Valor da produção (Mil Reais)'].astype(float)
-  df_list.append(df)
 
-for i in xl2.sheet_names:
-  df = pd.read_excel(xl2, sheet_name = i, skiprows=[0,1,2,3])
-  if len(df.columns) != 6:
-    continue
-  df.rename(columns={'Unnamed: 0':'cidade'}, inplace=True)
-  df = df[df["cidade"].str.startswith('      ')]
-  df.insert(1, "producao", i)
-  df.insert(2, "temporaria/permanente", "permanente")
-  #df['Área destinada à colheita (Hectares)'] = pd.to_numeric(df['Área destinada à colheita (Hectares)'], errors='coerce')
-  #df['Área colhida (Hectares)'] = pd.to_numeric(df['Área colhida (Hectares)'], errors='coerce')
-  #df['Quantidade produzida (Toneladas)'] = pd.to_numeric(df['Quantidade produzida (Toneladas)'], errors='coerce')
-  #df['Rendimento médio da produção (Quilogramas por Hectare)'] = pd.to_numeric(df['Rendimento médio da produção (Quilogramas por Hectare)'], errors='coerce')
-  #df['Valor da produção (Mil Reais)'] = pd.to_numeric(df['Valor da produção (Mil Reais)'], errors='coerce')
-  df.loc[df["Área plantada (Hectares)"] ==  '-', "Área destinada à colheita (Hectares)"] = 0
-  df.loc[df["Área plantada (Hectares)"] ==  '..', "Área destinada à colheita (Hectares)"] = 0
-  df.loc[df["Área plantada (Hectares)"] ==  '...', "Área destinada à colheita (Hectares)"] = 0
-  df.loc[df["Área colhida (Hectares)"] ==  '-', "Área colhida (Hectares)"] = 0
-  df.loc[df["Área colhida (Hectares)"] ==  '..', "Área colhida (Hectares)"] = 0
-  df.loc[df["Área colhida (Hectares)"] ==  '...', "Área colhida (Hectares)"] = 0
-  df.loc[df["Quantidade produzida (Toneladas)"] ==  '-', "Quantidade produzida (Toneladas)"] = 0
-  df.loc[df["Quantidade produzida (Toneladas)"] ==  '..', "Quantidade produzida (Toneladas)"] = 0
-  df.loc[df["Quantidade produzida (Toneladas)"] ==  '...', "Quantidade produzida (Toneladas)"] = 0
-  df.loc[df["Rendimento médio da produção (Quilogramas por Hectare)"] ==  '-', "Rendimento médio da produção (Quilogramas por Hectare)"] = 0
-  df.loc[df["Rendimento médio da produção (Quilogramas por Hectare)"] ==  '..', "Rendimento médio da produção (Quilogramas por Hectare)"] = 0
-  df.loc[df["Rendimento médio da produção (Quilogramas por Hectare)"] ==  '...', "Rendimento médio da produção (Quilogramas por Hectare)"] = 0
-  df.loc[df["Valor da produção (Mil Reais)"] ==  '-', "Valor da produção (Mil Reais)"] = 0
-  df.loc[df["Valor da produção (Mil Reais)"] ==  '..', "Valor da produção (Mil Reais)"] = 0
-  df.loc[df["Valor da produção (Mil Reais)"] ==  '...', "Valor da produção (Mil Reais)"] = 0
-  df['Área destinada à colheita (Hectares)'] = df['Área destinada à colheita (Hectares)'].astype(float)
-  df['Área colhida (Hectares)'] = df['Área colhida (Hectares)'].astype(float)
-  df['Quantidade produzida (Toneladas)'] = df['Quantidade produzida (Toneladas)'].astype(float)
-  df['Rendimento médio da produção (Quilogramas por Hectare)'] = df['Rendimento médio da produção (Quilogramas por Hectare)'].astype(float)
-  df['Valor da produção (Mil Reais)'] = df['Valor da produção (Mil Reais)'].astype(float)
-  df_list.append(df)
+############################# INPUT: Plantas permanentes #############################
+xl = pd.ExcelFile("https://github.com/Victor-Alves1/projeto-abelhas-streamlit/raw/master/pam_pe_permanente.xlsx")
+df_list_permanente = []
+df_list = df_list + df_list_permanente + plantas_permanentes.trata_planilha(xl)
 
+############################# INPUT: Plantas temporarias #############################
+#xl2 = pd.ExcelFile("https://github.com/Victor-Alves1/projeto-abelhas-streamlit/raw/master/pam_pe_temporario.xlsx")
+#df_list_temporario = []
+#df_list = df_list + plantas_temporarias + plantas_temporarias.trata_planilha(xl)
+
+############################# UNION: Unindo em um unico dataframe #############################
 dataset = pd.concat(df_list)
+#dataset = pd.DataFrame(df_list)
 
+#############################  Transform: Tratando tabela #############################
+# Criando dataset
 series = dataset[['cidade','producao','Quantidade produzida (Toneladas)']]
-series = series[series['Quantidade produzida (Toneladas)'] > 0]#.head(10)
+
+# Filtrando apenas estados com produção > 0
+series = series[series['Quantidade produzida (Toneladas)'] > 0]
+
+# Copiando dataset para criação do mapa
 wide_df = series
 
-excluding_sugar_cane = dataset[dataset["temporaria/permanente"] == 'Temporaria']#.head(10)
+# Excluindo plantas temporarias
+excluding_sugar_cane = dataset[dataset["temporaria/permanente"] == 'Temporaria']
+
+# Separando duas colunas para o mapa
 prod_per_city = excluding_sugar_cane[['cidade','Quantidade produzida (Toneladas)']]
+
+# Somando produção das cidades
 sum_prod_per_city = prod_per_city.groupby('cidade').sum()
+
+# Reindexando após soma
 sum_prod_per_city = sum_prod_per_city.reset_index()
+
+# Retirando espaço em branco a esquerda e a direita
 sum_prod_per_city['cidade'] = sum_prod_per_city['cidade'].str.strip()
 
 #series.plot.bar(x = 'cidade' , y = 'Quantidade produzida (Toneladas)', index = 'producao', stacked=True)
 
-
+############################# CREATING: Criando gráfico de barras #############################
 fig = px.bar(wide_df, x='cidade', y='Quantidade produzida (Toneladas)', color='producao', title="Produção agricola de Pernambuco" )
 
+############################# PLOTANDO: Título #############################
 st.title('Produção agrícola em Pernambuco')
 
 # Sidebar
 #st.sidebar.header('User Input')
 #symbol = st.sidebar.text_input('Escolha um ativo:', 'AAPL')
 
-#Criando mapas
+# Subindo dados do geo_json
 brazil_data = open('pernambuco_geo_json.json', 'r')
-#brazil_data = json.load(f)
-m = folium.Map(location=(-8.36, -38.02), zoom_start=7, control_scale=True)
 state_geo = json.load(brazil_data)
 
+# Criando mapa
+m = folium.Map(location=(-8.36, -38.02), zoom_start=7, control_scale=True)
+
+# Populando mapa coropletico
 folium.Choropleth(
     geo_data=state_geo,
     #name="choropleth",
@@ -150,10 +109,11 @@ m.add_child(highlight)
 
 #folium.LayerControl().add_to(m)
 
-st_folium(m, width=725, height =  600)
+streamlit_folium.st_folium(m, width=800)
 st.dataframe(sum_prod_per_city)
 
-# Plot
+############################# PLOTING: Grafico de barras de produtividade #############################
 st.plotly_chart(fig)
 
+############################# PLOTING: Tabela de produtividade #############################
 st.dataframe(dataset)
