@@ -9,11 +9,11 @@ import plantas_temporarias
 
 df_list = []
 df_list_permanente = []
-estados = ['al','ba','pb','pe','rn','se',]
+estados = ['al','ba', 'ce','ma','pb','pe', 'pi','rn','se']
 
 ############################# INPUT: Plantas permanentes ############################# 
 for estado in estados:
-    xl = pd.ExcelFile('https://github.com/Victor-Alves1/projeto-abelhas-streamlit/raw/test-env/data/producao_agricola_permante/pam_'+estado+'permanente.xlsx')
+    xl = pd.ExcelFile('https://github.com/Victor-Alves1/projeto-abelhas-streamlit/raw/test-env/data/producao_agricola_permanente/pam_'+estado+'_permanente.xlsx')
     df_list = df_list + df_list_permanente + plantas_permanentes.trata_planilha(xl)
 
 ############################# INPUT: Plantas temporarias #############################
@@ -63,8 +63,11 @@ st.title('Produção agrícola em Pernambuco')
 #symbol = st.sidebar.text_input('Escolha um ativo:', 'AAPL')
 
 # Subindo dados do geo_json
-brazil_data = open('geo_data/brazil_geo_json.json', 'r')
+# Origem dos dados https://github.com/tbrugz/geodata-br
+brazil_data = open('data/geo_data/ne_geo_json.json', 'r')
 state_geo = json.load(brazil_data)
+
+
 
 # Criando mapa
 m = folium.Map(location=(-8.36, -38.02), zoom_start=7, control_scale=True)
@@ -76,12 +79,12 @@ folium.Choropleth(
     data=sum_prod_per_city,
     columns=['cidade', 'Quantidade produzida (Toneladas)'],
     key_on="feature.properties.name",
-    nan_fill_color = "white"
-    #fill_color="YlGn",
+    nan_fill_color = "white",
+    fill_color="YlGn",
     #fill_opacity=0.4,
-    #line_opacity=0.2,
-    #legend_name="Produção agricola em Pernambuco"
-    #highlight=True
+    line_opacity=0.5,
+    legend_name="Produção agricola em Pernambuco",
+    highlight=True
 ).add_to(m)
 
 #Adicionando a função de destaque
@@ -111,7 +114,7 @@ m.add_child(highlight)
 
 #folium.LayerControl().add_to(m)
 
-streamlit_folium.st_folium(m, width=800)
+streamlit_folium.st_folium(m)
 st.dataframe(sum_prod_per_city)
 
 ############################# PLOTING: Grafico de barras de produtividade #############################
