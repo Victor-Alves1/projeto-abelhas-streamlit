@@ -8,11 +8,13 @@ import plantas_permanentes
 import plantas_temporarias  
 
 df_list = []
-
-############################# INPUT: Plantas permanentes #############################
-xl = pd.ExcelFile("https://github.com/Victor-Alves1/projeto-abelhas-streamlit/raw/master/pam_pe_permanente.xlsx")
 df_list_permanente = []
-df_list = df_list + df_list_permanente + plantas_permanentes.trata_planilha(xl)
+estados = ['al','ba','pb','pe','rn','se',]
+
+############################# INPUT: Plantas permanentes ############################# 
+for estado in estados:
+    xl = pd.ExcelFile('https://github.com/Victor-Alves1/projeto-abelhas-streamlit/raw/test-env/data/producao_agricola_permante/pam_'+estado+'permanente.xlsx')
+    df_list = df_list + df_list_permanente + plantas_permanentes.trata_planilha(xl)
 
 ############################# INPUT: Plantas temporarias #############################
 #xl2 = pd.ExcelFile("https://github.com/Victor-Alves1/projeto-abelhas-streamlit/raw/master/pam_pe_temporario.xlsx")
@@ -21,7 +23,7 @@ df_list = df_list + df_list_permanente + plantas_permanentes.trata_planilha(xl)
 
 ############################# UNION: Unindo em um unico dataframe #############################
 dataset = pd.concat(df_list)
-#dataset = pd.DataFrame(df_list)
+
 
 #############################  Transform: Tratando tabela #############################
 # Criando dataset
@@ -61,7 +63,7 @@ st.title('Produção agrícola em Pernambuco')
 #symbol = st.sidebar.text_input('Escolha um ativo:', 'AAPL')
 
 # Subindo dados do geo_json
-brazil_data = open('pernambuco_geo_json.json', 'r')
+brazil_data = open('geo_data/brazil_geo_json.json', 'r')
 state_geo = json.load(brazil_data)
 
 # Criando mapa
