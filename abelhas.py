@@ -121,7 +121,7 @@ folium.features.GeoJsonTooltip(fields = ["name"],
                             style = ("background-color: white; color: black; font-family: arial; font-size: 16px; padding: 10px;")).add_to(highlight)
 
 
-st.header("🗺️ Produção municipal agrícola (t)")
+st.header("🗺️ Produção municipal agrícola (t)", divider=True)
 tab3, tab4 = st.tabs(["🗺️ Mapa", "🧮 Tabela"])
 with tab3:
     # Criando mapa
@@ -148,7 +148,7 @@ with tab3:
 with tab4:
     st.dataframe(sum_prod_per_city)
 
-st.header("🎍 Eficiencia municipal agrícola (t/ha)")
+st.header("🎍 Eficiencia municipal agrícola (t/ha)", divider=True)
 tab5, tab6 = st.tabs(["🗺️ Mapa", "🧮 Tabela"])
 with tab5:
     # Criando mapa
@@ -171,7 +171,7 @@ with tab5:
 with tab6:
     st.dataframe(somando_prod_e_area)
 
-st.header("💸 Rendimento municipal agrícola (valores em 1.000 reais)")
+st.header("💸 Rendimento municipal agrícola (valores em 1.000 reais)", divider=True)
 tab7, tab8 = st.tabs(["🗺️ Mapa", "🧮 Tabela"])
 with tab7:
     # Criando mapa
