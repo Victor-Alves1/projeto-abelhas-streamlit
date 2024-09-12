@@ -14,7 +14,7 @@ def trata_planilha (xl):
     df.rename(columns={'Unnamed: 0':'cidade'}, inplace=True)
     df = df[df["cidade"].str.startswith('      ')]
     df.insert(1, "producao", i)
-    df.insert(2, "temporaria/permanente", "Temporaria")
+    df.insert(2, "temporaria/permanente", "Permanente")
     #df['Área destinada à colheita (Hectares)'] = pd.to_numeric(df['Área destinada à colheita (Hectares)'], errors='coerce')
     #df['Área colhida (Hectares)'] = pd.to_numeric(df['Área colhida (Hectares)'], errors='coerce')
     #df['Quantidade produzida (Toneladas)'] = pd.to_numeric(df['Quantidade produzida (Toneladas)'], errors='coerce')

@@ -28,7 +28,7 @@ dataset = pd.concat(df_list)
 dataset['cidade'] = dataset['cidade'].str.strip()
 
 # Filtrando apenas estados com produção > 0
-dataset = dataset[dataset['Quantidade produzida (Toneladas)'] > 0]
+#dataset = dataset[dataset['Quantidade produzida (Toneladas)'] > 0]
 
 # Criando dataset
 series = dataset[['cidade','producao','Quantidade produzida (Toneladas)']]
@@ -52,14 +52,17 @@ sum_prod_per_city = sum_prod_per_city.reset_index()
 # Separando as três colunas para o mapa
 somando_prod_e_area = dataset[['cidade','Quantidade produzida (Toneladas)', 'Área colhida (Hectares)']]
 
-# somando_prod_e_area
-
-
 # Somando produção das cidades
 somando_prod_e_area = somando_prod_e_area.groupby('cidade').sum()
 
 # Reindexando após soma
 somando_prod_e_area = somando_prod_e_area.reset_index()
+
+# Gerando eficiencia
+somando_prod_e_area['eficiencia'] = somando_prod_e_area['Quantidade produzida (Toneladas)'] / somando_prod_e_area['Área colhida (Hectares)']
+somando_prod_e_area = somando_prod_e_area[['cidade','eficiencia']]
+
+
 
 #############################  Transform: Tratando tabela de rendimento #############################
 # Separando duas colunas para o mapa
@@ -75,35 +78,59 @@ sum_rendimento_per_city = sum_rendimento_per_city.reset_index()
 fig = px.bar(series, x='cidade', y='Quantidade produzida (Toneladas)', color='producao', title="Produção agricola de Pernambuco" )
 
 ############################# PLOTANDO: Título #############################
-st.title('Produção agrícola em Pernambuco')
+st.title('🐝 PERPÉTUA: Dados agrícolas 🐝')
 
 # Sidebar
 #st.sidebar.header('User Input')
 #symbol = st.sidebar.text_input('Escolha um ativo:', 'AAPL')
-
+st.header("Produção de culturas permanentes", divider=True)
+tab1, tab2 = st.tabs(["📊 Gráfico", "🧮 Tabela"])
+with tab1:
 ############################# PLOTING: Grafico de barras de produtividade #############################
-st.plotly_chart(fig)
+    st.plotly_chart(fig)
 
+with tab2:
 ############################# PLOTING: Tabela de produtividade #############################
-st.dataframe(dataset)
+    st.dataframe(dataset)
 
 # Subindo dados do geo_json
 # Origem dos dados https://github.com/tbrugz/geodata-br
 brazil_data = open('data/geo_data/ne_geo_json.json', 'r')
 state_geo = json.load(brazil_data)
 
-tab1, tab2, tab3 = st.tabs(["🗺️ Produção (t)", " 🎍 Eficiencia (Kg/t)", "💸 Rendimento (1.000 reais)"])
+#Adicionando a função de destaque
+estilo = lambda x: {"fillColor": "white",
+                "color": "black",
+                "fillOpacity": 0.001,
+                "weight": 0.001}
 
-with tab1:
-    st.header("🗺️ Produção (t)")
+estilo_destaque = lambda x: {"fillColor": "darkblue",
+                            "color": "black",
+                            "fillOpacity": 0.5,
+                            "weight": 1}
 
+highlight = folium.features.GeoJson(data = state_geo,
+                                style_function = estilo,
+                                highlight_function = estilo_destaque,
+                                name = "Destaque")
+
+#Adicionando caixa de texto
+folium.features.GeoJsonTooltip(fields = ["name"],
+                            aliases = ["Cidade"],
+                            labels = False,
+                            style = ("background-color: white; color: black; font-family: arial; font-size: 16px; padding: 10px;")).add_to(highlight)
+
+
+st.header("🗺️ Produção municipal agrícola (t)")
+tab3, tab4 = st.tabs(["🗺️ Mapa", "🧮 Tabela"])
+with tab3:
     # Criando mapa
     m1 = folium.Map(location=(-8.36, -38.02), zoom_start=7, control_scale=True)
 
     # Populando mapa coropletico
     folium.Choropleth(
         geo_data=state_geo,
-        #name="choropleth",
+        name="productivity choropleth",
         data=sum_prod_per_city,
         columns=['cidade', 'Quantidade produzida (Toneladas)'],
         key_on="feature.properties.name",
@@ -114,44 +141,63 @@ with tab1:
         legend_name="Produção agricola em Pernambuco",
         highlight=True
     ).add_to(m1)
-
-    #Adicionando a função de destaque
-    estilo = lambda x: {"fillColor": "white",
-                    "color": "black",
-                    "fillOpacity": 0.001,
-                    "weight": 0.001}
-
-    estilo_destaque = lambda x: {"fillColor": "darkblue",
-                                "color": "black",
-                                "fillOpacity": 0.5,
-                                "weight": 1}
-
-    highlight = folium.features.GeoJson(data = state_geo,
-                                    style_function = estilo,
-                                    highlight_function = estilo_destaque,
-                                    name = "Destaque")
-
-    #Adicionando caixa de texto
-    folium.features.GeoJsonTooltip(fields = ["name"],
-                                aliases = ["Cidade"],
-                                labels = False,
-                                style = ("background-color: white; color: black; font-family: arial; font-size: 16px; padding: 10px;")).add_to(highlight)
-
     #Adicionando o destaque ao mapa
     m1.add_child(highlight)
     #folium.LayerControl().add_to(m)
     streamlit_folium.st_folium(m1)
+with tab4:
     st.dataframe(sum_prod_per_city)
 
-with tab2:
-    st.header("🎍 Rendimento (Kg/t)")
+st.header("🎍 Eficiencia municipal agrícola (t/ha)")
+tab5, tab6 = st.tabs(["🗺️ Mapa", "🧮 Tabela"])
+with tab5:
+    # Criando mapa
+    m2 = folium.Map(location=(-8.36, -38.02), zoom_start=7, control_scale=True)
+    # Populando mapa coropletico
+    folium.Choropleth(
+        geo_data=state_geo,
+        name="efficiency choropleth",
+        data=somando_prod_e_area,
+        columns=['cidade', 'eficiencia'],
+        key_on="feature.properties.name",
+        nan_fill_color = "white",
+        fill_color="YlGn",
+        fill_opacity=1,
+        line_opacity=0.5,
+        legend_name="Eficiencia agricola no nordeste brasileiro",
+        highlight=True
+    ).add_to(m2)
+    streamlit_folium.st_folium(m2)
+with tab6:
     st.dataframe(somando_prod_e_area)
 
-with tab3:
-    st.header("💸 Rendimento (1.000 reais)")
+st.header("💸 Rendimento municipal agrícola (valores em 1.000 reais)")
+tab7, tab8 = st.tabs(["🗺️ Mapa", "🧮 Tabela"])
+with tab7:
+    # Criando mapa
+    m3 = folium.Map(location=(-8.36, -38.02), zoom_start=7, control_scale=True)
+    # Populando mapa coropletico
+    folium.Choropleth(
+        geo_data=state_geo,
+        name="rendimento choropleth",
+        data=sum_rendimento_per_city,
+        columns=['cidade', 'Valor da produção (Mil Reais)'],
+        key_on="feature.properties.name",
+        nan_fill_color = "white",
+        fill_color="YlGn",
+        fill_opacity=1,
+        line_opacity=0.5,
+        legend_name="Rendimento agricola em Pernambuco",
+        highlight=True
+    ).add_to(m3)
+    #Adicionando o destaque ao mapa
+    m3.add_child(highlight)
+    #folium.LayerControl().add_to(m)
+    streamlit_folium.st_folium(m3)
+with tab8:
     st.dataframe(sum_rendimento_per_city)
 
 
 
-    
+
 
